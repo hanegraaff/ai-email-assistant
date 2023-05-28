@@ -13,7 +13,10 @@ class MyPipelineStack(cdk.Stack):
                             commands=["npm install -g aws-cdk", 
                                 "cd infra",
                                 "python -m pip install -r requirements.txt",
-                                "cdk synth"]
+                                "cdk synth",
+                                "mv cdk.out .."
+                                ]#,
+                                #primary_output_directory= 'infra'
                         )
                     )
         
