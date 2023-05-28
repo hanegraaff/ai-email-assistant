@@ -1,7 +1,7 @@
 import aws_cdk as cdk
 from constructs import Construct
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep
-
+from pipeline.infra_stage import InfraStage
 class MyPipelineStack(cdk.Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -20,4 +20,4 @@ class MyPipelineStack(cdk.Stack):
                         )
                     )
         
-        #pipeline.add_stage()
+        pipeline.add_stage(InfraStage(self, "InfraState"))
