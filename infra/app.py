@@ -3,8 +3,8 @@ import os
 
 import aws_cdk as cdk
 
-from infra.infra_stack import InfraStack
-from infra.pipeline_stack import MyPipelineStack
+from backend.infra_stack import InfraStack
+from pipeline.pipeline_stack import MyPipelineStack
 
 
 app = cdk.App()
