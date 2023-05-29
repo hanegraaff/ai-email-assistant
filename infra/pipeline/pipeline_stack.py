@@ -2,19 +2,14 @@ import aws_cdk as cdk
 from constructs import Construct
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep
 from pipeline.infra_stage import InfraStage
-from aws_cdk.aws_s3 import Bucket
-from aws_cdk.pipelines import CodeBuildStep
-from aws_cdk import aws_codebuild as codebuild
-from aws_cdk import aws_codepipeline_actions as codepipeline_actions
-from aws_cdk import aws_codepipeline as codepipeline
 
 class MyPipelineStack(cdk.Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        codebuild_project = codebuild.Project(self, "PackageCode",
-            build_spec=codebuild.BuildSpec.from_object({
-                "version": "0.2",
+        
+        # Configure CodeBuild to use a drop-in Docker replacement.
+        code_build_defaults=cdk.pipelines.CodeBuildOptions(
+            partial_build_spec=cdk.aws_codebuild.BuildSpec.from_object({
                 "phases": {
                     "install": {
                         "commands": [
@@ -29,11 +24,8 @@ class MyPipelineStack(cdk.Stack):
                             "zip -r application.zip application_source/backend/"
                         ]
                     },
-                },
-            }),
-            environment=codebuild.BuildEnvironment(
-                build_image=codebuild.LinuxBuildImage.STANDARD_4_0,
-            ),
+                }
+            })
         )
 
         pipeline =  CodePipeline(self, "Pipeline",
@@ -46,5 +38,9 @@ class MyPipelineStack(cdk.Stack):
                                 "cdk synth",
                                 "mv cdk.out .."
                             ]
-                        )
+                        ),
+                        code_build_defaults = code_build_defaults
+                        
                     )
+        
+        pipeline.add_stage(InfraStage(self, "Deploy-AppInfra-Stack"))
