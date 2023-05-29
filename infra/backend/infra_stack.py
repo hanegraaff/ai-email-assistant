@@ -1,5 +1,6 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from constructs import Construct
+import aws_cdk.aws_s3_assets as s3_assets
 
 class InfraStack(Stack):
 
@@ -17,7 +18,8 @@ class InfraStack(Stack):
             self, "emailassistant-backend-test",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="index.handler",
-            code=aws_lambda.Code.from_inline("def handler(event, context):\n    print('Hello, World!')"),
+            #code=aws_lambda.Code.from_inline("def handler(event, context):\n    print('Hello, World!')"),
+            code=aws_lambda.Code.from_asset(path="../application_source/backend"),
             role=role
         )
 
