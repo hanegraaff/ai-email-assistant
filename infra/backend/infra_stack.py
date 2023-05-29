@@ -1,11 +1,10 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
-
 from constructs import Construct
 
 class InfraStack(Stack):
 
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
+    def __init__(self, scope: Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
 
         # Create the IAM role
         role = aws_iam.Role(
