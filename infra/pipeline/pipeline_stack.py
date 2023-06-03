@@ -11,11 +11,16 @@ class MyPipelineStack(cdk.Stack):
                         pipeline_name="EmailAssistantPipeline",
                         synth=ShellStep("Synth",
                             input=CodePipelineSource.git_hub("hanegraaff/ai-email-assistant", "feature/initial-development", authentication=cdk.SecretValue.secrets_manager("emailassistant/githubtoken")),
-                            commands=["npm install -g aws-cdk", 
+                            commands=[
+                                # Build the backend code
+                                "cd /application_source/",
+                                "./build.sh",
+                                "cd .."
+
+                                # Build the assembly
+                                "npm install -g aws-cdk", 
                                 "cd infra",
                                 "python -m pip install -r requirements.txt",
-                                "cd ../application_source/",
-                                "./build.sh",
                                 "cdk synth",
                                 "mv cdk.out .."
                             ]
