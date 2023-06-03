@@ -16,8 +16,7 @@ class MyPipelineStack(cdk.Stack):
                                 "pwd",
                                 "cd ./application_source/",
                                 "./build.sh",
-                                "cd .."
-
+                                "cd ..",
                                 # Build the assembly
                                 "npm install -g aws-cdk", 
                                 "cd infra",
