@@ -14,6 +14,7 @@ class InfraStack(Stack):
         )
 
         # Create the Lambda function
+        '''
         lambda_function = aws_lambda.Function(
             self, "emailassistant-backend-test",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
@@ -22,6 +23,7 @@ class InfraStack(Stack):
             code=backend_package,
             role=role
         )
+        '''
 
         lambda_function = aws_lambda.Function(
             self, "emailassistant-frontend-test",
