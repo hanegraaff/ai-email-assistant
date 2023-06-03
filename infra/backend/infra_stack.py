@@ -14,16 +14,15 @@ class InfraStack(Stack):
         )
 
         # Create the Lambda function
-        '''
+        
         lambda_function = aws_lambda.Function(
             self, "emailassistant-backend-test",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="index.handler",
-            #code=aws_lambda.Code.from_inline("def handler(event, context):\n    print('Hello, World!')"),
             code=backend_package,
             role=role
         )
-        '''
+
 
         lambda_function = aws_lambda.Function(
             self, "emailassistant-frontend-test",
