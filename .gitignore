@@ -11,3 +11,6 @@ cdk.out
 
 .DS_Store
 read.*.lock
+
+# build artifacts
+*.zip
