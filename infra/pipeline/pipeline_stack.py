@@ -14,6 +14,8 @@ class MyPipelineStack(cdk.Stack):
                             commands=["npm install -g aws-cdk", 
                                 "cd infra",
                                 "python -m pip install -r requirements.txt",
+                                "cd ../application_source/",
+                                "./build.sh",
                                 "cdk synth",
                                 "mv cdk.out .."
                             ]
