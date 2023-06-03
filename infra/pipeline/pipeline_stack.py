@@ -13,6 +13,7 @@ class MyPipelineStack(cdk.Stack):
                             input=CodePipelineSource.git_hub("hanegraaff/ai-email-assistant", "feature/initial-development", authentication=cdk.SecretValue.secrets_manager("emailassistant/githubtoken")),
                             commands=[
                                 # Build the backend code
+                                "pwd",
                                 "cd ./application_source/",
                                 "./build.sh",
                                 "cd .."
