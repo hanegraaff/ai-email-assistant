@@ -2,6 +2,7 @@
 import os
 
 import aws_cdk as cdk
+from aws_cdk import App, Stack, Tags
 
 from backend.infra_stack import InfraStack
 from pipeline.pipeline_stack import MyPipelineStack
@@ -28,6 +29,13 @@ InfraStack(app, "EmailAssistantInfraStack",
     )
 '''
 
-MyPipelineStack(app, "EmailAssistantPipelineStack")
+pipleine_stack = MyPipelineStack(app, "EmailAssistantPipelineStack")
     
 app.synth()
+
+
+
+# Add a tag to all constructs in the stack
+Tags.of(pipleine_stack).add("app_name", "EmailAssistant")
+Tags.of(pipleine_stack).add("app_cost_center", "1234")
+
