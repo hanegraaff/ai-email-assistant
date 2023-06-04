@@ -18,6 +18,10 @@ class InfraStack(Stack):
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com")
         )
 
+        Tags.of(role).add("component_name", component_name)
+        Tags.of(role).add("Name", "LambdaAssumeRole")
+
+
         #
         # Lambda backend
         #
@@ -29,6 +33,9 @@ class InfraStack(Stack):
             code=assets.backend_package,
             role=role
         )
+        Tags.of(backend_lambda_function).add("component_name", component_name)
+        Tags.of(backend_lambda_function).add("Name", "BackendService")
+
 
         #
         # Lambda/API frontend
@@ -40,6 +47,9 @@ class InfraStack(Stack):
             code=assets.frontend_package,
             role=role
         )
+        Tags.of(frontend_lambda_function).add("component_name", component_name)
+        Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
+
 
         api = apigateway.RestApi(self, "frontend-api",
                   rest_api_name="Frontend Service",
@@ -49,25 +59,17 @@ class InfraStack(Stack):
                 request_templates={"application/json": '{ "statusCode": "200" }'})
 
         api.root.add_method("GET", get_frontend_integration)   # GET /
+        
+        Tags.of(api).add("component_name", component_name)
+        Tags.of(api).add("Name", "FrontEndAPI")
 
         hosted_zone = route53.HostedZone(self, "FrondEndAPI", zone_name="www.hal9001.com")
 
-        route53.ARecord(self, "AliasRecord",
+        record = route53.ARecord(self, "AliasRecord",
             zone=hosted_zone,
             target=route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
         )
 
-        #
-        # Tags
-        #
-        Tags.of(role).add("component_name", component_name)
-        Tags.of(role).add("Name", "LambdaAssumeRole")
+        Tags.of(record).add("component_name", component_name)
+        Tags.of(record).add("Name", "FrontEndRoute53Record")
 
-        Tags.of(backend_lambda_function).add("component_name", component_name)
-        Tags.of(backend_lambda_function).add("Name", "BackendService")
-
-        Tags.of(frontend_lambda_function).add("component_name", component_name)
-        Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
-
-        Tags.of(api).add("component_name", component_name)
-        Tags.of(api).add("Name", "FrontEndAPI")
