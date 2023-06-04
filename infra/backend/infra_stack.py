@@ -1,4 +1,5 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
+from aws_cdk import aws_apigateway as apigateway
 from constructs import Construct
 from aws_cdk import Tags
 from pipeline import assets
@@ -16,8 +17,10 @@ class InfraStack(Stack):
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com")
         )
 
-        # Create the Lambda function
-        
+        #
+        # Lambda backend
+        #
+
         backend_lambda_function = aws_lambda.Function(
             self, "emailassistant-backend-test",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
@@ -25,6 +28,11 @@ class InfraStack(Stack):
             code=assets.backend_package,
             role=role
         )
+
+        #
+        # Lambda/API frontend
+        #
+
 
 
         frontend_lambda_function = aws_lambda.Function(
@@ -34,6 +42,15 @@ class InfraStack(Stack):
             code=assets.frontend_package,
             role=role
         )
+
+        api = apigateway.RestApi(self, "frontend-api",
+                  rest_api_name="Frontend Service",
+                  description="This is the initial frontend service.")
+
+        get_frontend_integration = apigateway.LambdaIntegration(frontend_lambda_function,
+                request_templates={"application/json": '{ "statusCode": "200" }'})
+
+        api.root.add_method("GET", get_frontend_integration)   # GET /
 
 
         #
