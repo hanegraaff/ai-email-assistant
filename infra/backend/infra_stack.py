@@ -43,8 +43,8 @@ class InfraStack(Stack):
         Tags.of(role).add("Name", "LambdaAssumeRole")
 
         Tags.of(backend_lambda_function).add("component_name", component_name)
-        Tags.of(role).add("Name", "BackendService")
+        Tags.of(backend_lambda_function).add("Name", "BackendService")
 
         Tags.of(frontend_lambda_function).add("component_name", component_name)
-        Tags.of(role).add("Name", "FrontEndService")
+        Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
 
