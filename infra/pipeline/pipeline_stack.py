@@ -32,4 +32,4 @@ class MyPipelineStack(cdk.Stack):
         Tags.of(infrastrage).add("app_name", "EmailAssistant")
         Tags.of(infrastrage).add("app_cost_center", "1234")
         
-        pipeline.add_stage(InfraStage(self, "Email-Assistant-Infra"))
+        pipeline.add_stage(infrastrage)
