@@ -14,3 +14,7 @@ read.*.lock
 
 # build artifacts
 *.zip
+
+#react build artifacts
+node_modules
+package-lock.json

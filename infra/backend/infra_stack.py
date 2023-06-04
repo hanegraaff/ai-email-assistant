@@ -1,7 +1,7 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from constructs import Construct
 from aws_cdk import Tags
-from pipeline.assets import backend_package
+from pipeline import assets
 
 class InfraStack(Stack):
 
@@ -22,7 +22,7 @@ class InfraStack(Stack):
             self, "emailassistant-backend-test",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="handlers.lambda_handler.handler",
-            code=backend_package,
+            code=assets.backend_package,
             role=role
         )
 
@@ -30,8 +30,8 @@ class InfraStack(Stack):
         frontend_lambda_function = aws_lambda.Function(
             self, "emailassistant-frontend-test",
             runtime=aws_lambda.Runtime.NODEJS_18_X,
-            handler="index.handler",
-            code=aws_lambda.Code.from_inline("export const handler = async(event) => {\n   return null;\n};"),
+            handler="lambda.handler",
+            code=assets.backend_package,
             role=role
         )
 

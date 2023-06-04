@@ -16,6 +16,9 @@ class MyPipelineStack(cdk.Stack):
                                 # Build the backend code
                                 "make -C application_source/backend",
 
+                                # Build the backend code
+                                "make -C application_source/frontend",
+
                                 # Build the assembly
                                 "npm install -g aws-cdk", 
                                 "cd infra",
