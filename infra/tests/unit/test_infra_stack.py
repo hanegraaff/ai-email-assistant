@@ -10,8 +10,7 @@ def test_lambda_function_created():
     app = core.App()
     stack = InfraStack(app, "infra")
     template = assertions.Template.from_stack(stack)
-    
-    template.has("AWS::Lambda::Function", {})
+
 
     template.has_resource_properties("AWS::Lambda::Function", {
         "Runtime": "python3.8"
@@ -20,6 +19,21 @@ def test_lambda_function_created():
     template.has_resource_properties("AWS::Lambda::Function", {
         "Runtime": "nodejs18.x"
     })
+
+
+    template.has_resource_properties("AWS::Lambda::Function", {
+        "Tags": Match.array_with([
+            {
+                "Key": "component_name",
+                "Value": "Application Bakend"
+            },
+            {
+                "Key": "Name",
+                "Value": Match.any_value()
+            }
+        ])})
+
+
 
 
 

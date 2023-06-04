@@ -28,9 +28,6 @@ class MyPipelineStack(cdk.Stack):
         
         infrastrage = InfraStage(self, "Email-Assistant-Infra")
 
-        Tags.of(pipeline).add("Name", "Pipeline")
-
-
         # Add a tag to all constructs in the stack
         Tags.of(infrastrage).add("app_name", "EmailAssistant")
         Tags.of(infrastrage).add("app_cost_center", "1234")
