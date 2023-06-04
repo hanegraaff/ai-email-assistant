@@ -1,8 +1,9 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
+from aws_cdk import route53, Tags, aws_events_targets
 from constructs import Construct
-from aws_cdk import Tags
 from pipeline import assets
+
 
 class InfraStack(Stack):
 
@@ -32,9 +33,6 @@ class InfraStack(Stack):
         #
         # Lambda/API frontend
         #
-
-
-
         frontend_lambda_function = aws_lambda.Function(
             self, "emailassistant-frontend-test",
             runtime=aws_lambda.Runtime.NODEJS_18_X,
@@ -52,6 +50,12 @@ class InfraStack(Stack):
 
         api.root.add_method("GET", get_frontend_integration)   # GET /
 
+        hosted_zone = route53.HostedZone(self, "FrondEndAPI", zone_name="www.hal9001.com")
+
+        route53.ARecord(self, "AliasRecord",
+            zone=hosted_zone,
+            target=route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
+        )
 
         #
         # Tags
@@ -65,3 +69,5 @@ class InfraStack(Stack):
         Tags.of(frontend_lambda_function).add("component_name", component_name)
         Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
 
+        Tags.of(api).add("component_name", component_name)
+        Tags.of(api).add("Name", "FrontEndAPI")
