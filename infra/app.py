@@ -12,6 +12,7 @@ pipleine_stack = MyPipelineStack(app, "EmailAssistantPipelineStack")
 # Add a tag to all constructs in the stack
 Tags.of(pipleine_stack).add("app_name", "EmailAssistant")
 Tags.of(pipleine_stack).add("app_cost_center", "1234")
+Tags.of(pipleine_stack).add("component_type", "Application Infra")
 
 app.synth()
 
