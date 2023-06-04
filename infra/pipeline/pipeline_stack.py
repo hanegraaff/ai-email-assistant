@@ -1,5 +1,6 @@
 import aws_cdk as cdk
 from constructs import Construct
+from aws_cdk import Tags
 from aws_cdk.pipelines import CodePipeline, CodePipelineSource, ShellStep
 from pipeline.infra_stage import InfraStage
 
@@ -14,7 +15,7 @@ class MyPipelineStack(cdk.Stack):
                             commands=[
                                 # Build the backend code
                                 "make -C application_source/backend",
-                                
+
                                 # Build the assembly
                                 "npm install -g aws-cdk", 
                                 "cd infra",
@@ -24,5 +25,11 @@ class MyPipelineStack(cdk.Stack):
                             ]
                         )
                     )
+        
+        infrastrage = InfraStage(self, "Email-Assistant-Infra")
+
+        # Add a tag to all constructs in the stack
+        Tags.of(infrastrage).add("app_name", "EmailAssistant")
+        Tags.of(infrastrage).add("app_cost_center", "1234")
         
         pipeline.add_stage(InfraStage(self, "Email-Assistant-Infra"))
