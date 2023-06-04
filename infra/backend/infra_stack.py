@@ -1,6 +1,6 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
-from aws_cdk import route53, Tags, aws_events_targets
+from aws_cdk import aws_route53, Tags, aws_events_targets
 from constructs import Construct
 from pipeline import assets
 
@@ -63,11 +63,11 @@ class InfraStack(Stack):
         Tags.of(api).add("component_name", component_name)
         Tags.of(api).add("Name", "FrontEndAPI")
 
-        hosted_zone = route53.HostedZone(self, "FrondEndAPI", zone_name="www.hal9001.com")
+        hosted_zone = aws_route53.HostedZone(self, "FrondEndAPI", zone_name="www.hal9001.com")
 
-        record = route53.ARecord(self, "AliasRecord",
+        record = aws_route53.ARecord(self, "AliasRecord",
             zone=hosted_zone,
-            target=route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
+            target=aws_route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
         )
 
         Tags.of(record).add("component_name", component_name)
