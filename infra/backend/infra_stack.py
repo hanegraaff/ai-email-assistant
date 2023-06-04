@@ -31,7 +31,7 @@ class InfraStack(Stack):
             self, "emailassistant-frontend-test",
             runtime=aws_lambda.Runtime.NODEJS_18_X,
             handler="lambda.handler",
-            code=assets.backend_package,
+            code=assets.frontend_package,
             role=role
         )
 
