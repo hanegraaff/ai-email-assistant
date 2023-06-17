@@ -94,7 +94,7 @@ class InfraStack(Stack):
         
         record = aws_route53.ARecord(self, "alias_record",
             zone=hosted_zone,
-            record_name="www",
+            record_name="prod",
             target=aws_route53.RecordTarget(
                 alias_target=aws_route53_targets.ApiGatewayDomain(custom_domain_name)
             )
