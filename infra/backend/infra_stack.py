@@ -1,6 +1,6 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
-from aws_cdk import aws_route53, Tags, aws_events_targets
+from aws_cdk import aws_route53, Tags, aws_route53_targets, aws_certificatemanager
 from constructs import Construct
 from pipeline import assets
 
@@ -51,25 +51,41 @@ class InfraStack(Stack):
         Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
 
 
-        api = apigateway.RestApi(self, "frontend-api",
-                  rest_api_name="Frontend Service",
-                  description="This is the initial frontend service.")
+        cert = aws_certificatemanager.Certificate(self, 
+            "emailassistant-frontend-cert", 
+            domain_name="*.hal-9001.com",
+            validation=aws_certificatemanager.CertificateValidation.from_dns())
+        
+        api = apigateway.LambdaRestApi(self, "FronfEndAPI",
+            handler=frontend_lambda_function,
+            domain_name=apigateway.DomainNameOptions(
+                domain_name="test.hal-9001.com",
+                certificate=cert
+            ),
+            proxy=False
+        )
+        
 
-        get_frontend_integration = apigateway.LambdaIntegration(frontend_lambda_function,
-                request_templates={"application/json": '{ "statusCode": "200" }'})
+        items = api.root.add_resource("items")
+        items.add_method("GET") # GET /items
 
-        api.root.add_method("GET", get_frontend_integration)   # GET /
+        item = items.add_resource("{method}")
+        item.add_method("GET") # GET /items/{method}
         
         Tags.of(api).add("component_name", component_name)
         Tags.of(api).add("Name", "FrontEndAPI")
+        
 
-        hosted_zone = aws_route53.HostedZone(self, "FrondEndAPI", zone_name="www.hal9001.com")
+        hosted_zone = aws_route53.HostedZone(self, "FrondEndAPI", zone_name="hal-9001.com")
 
         record = aws_route53.ARecord(self, "AliasRecord",
             zone=hosted_zone,
-            target=aws_route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
+            #target=aws_route53.RecordTarget.from_alias(aws_events_targets.ApiGateway(api))
+            target=aws_route53.RecordTarget(
+                alias_target=aws_route53_targets.ApiGateway(api)
+            )
         )
 
-        Tags.of(record).add("component_name", component_name)
-        Tags.of(record).add("Name", "FrontEndRoute53Record")
+        #Tags.of(record).add("component_name", component_name)
+        #Tags.of(record).add("Name", "FrontEndRoute53Record")
 
