@@ -88,14 +88,14 @@ class InfraStack(Stack):
         # Create a custom domain name for the API that will be
         # mapped to route 53 via an "A" record
         custom_domain_name = apigateway.DomainName(self, "frontend_custom_domain-name", 
-            domain_name = "www.%s" % DOMAIN_NAME,
+            domain_name = "api-prod.%s" % DOMAIN_NAME,
             certificate=cert,
             mapping=api)
         
         # note that the domain name for the custom domain and A record must match.
         record = aws_route53.ARecord(self, "alias_record",
             zone=hosted_zone,
-            record_name="www",
+            record_name="api-prod",
             target=aws_route53.RecordTarget(
                 alias_target=aws_route53_targets.ApiGatewayDomain(custom_domain_name)
             )
