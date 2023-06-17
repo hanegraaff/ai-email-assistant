@@ -19,7 +19,7 @@ class InfraStack(Stack):
 
         component_name = "Application Bakend"
 
-        # Create the IAM role
+        # IAM roles
         role = aws_iam.Role(
             self, "LambdaRole",
             assumed_by=aws_iam.ServicePrincipal("lambda.amazonaws.com")
@@ -44,9 +44,15 @@ class InfraStack(Stack):
         Tags.of(backend_lambda_function).add("Name", "BackendService")
 
         #
-        # Hosted Zone
+        # DNS & Certificates
         #
         hosted_zone = aws_route53.HostedZone.from_hosted_zone_attributes(self, "hosted_zone", zone_name=DOMAIN_NAME, hosted_zone_id=HOSTED_ZONE_ID)
+
+        cert = aws_certificatemanager.Certificate(self, 
+            "emailassistant-frontend-cert", 
+            domain_name="*.%s" % DOMAIN_NAME ,
+            validation=aws_certificatemanager.CertificateValidation.from_dns(hosted_zone=hosted_zone))
+        
 
         #
         # Lambda/API frontend
@@ -61,21 +67,17 @@ class InfraStack(Stack):
         Tags.of(frontend_lambda_function).add("component_name", component_name)
         Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
 
-
-        cert = aws_certificatemanager.Certificate(self, 
-            "emailassistant-frontend-cert", 
-            domain_name="*.%s" % DOMAIN_NAME ,
-            validation=aws_certificatemanager.CertificateValidation.from_dns(hosted_zone=hosted_zone))
-        
         api = apigateway.LambdaRestApi(self, "FronfEndAPI",
             handler=frontend_lambda_function,
+            proxy=False
+        )
+
+        '''
             domain_name=apigateway.DomainNameOptions(
                 domain_name="test.%s" % DOMAIN_NAME,
                 certificate=cert
             ),
-            proxy=False
-        )
-        
+        '''
 
         items = api.root.add_resource("items")
         items.add_method("GET") # GET /items
@@ -85,12 +87,19 @@ class InfraStack(Stack):
         
         Tags.of(api).add("component_name", component_name)
         Tags.of(api).add("Name", "FrontEndAPI")
-         
 
+        # Create a custom domain name for the API that will be
+        # mapped to route 53 via an "A" record
+        custom_domain_name = apigateway.DomainName(self, "CustomDomainName", 
+            domain_name = "test.%s" % DOMAIN_NAME,
+            certificate=cert,
+            mapping=api)
+        
         record = aws_route53.ARecord(self, "AliasRecord",
             zone=hosted_zone,
             target=aws_route53.RecordTarget(
-                alias_target=aws_route53_targets.ApiGateway(api)
+                #alias_target=aws_route53_targets.ApiGateway(api)
+                alias_target=aws_route53_targets.ApiGatewayDomain(custom_domain_name)
             )
         )
 
