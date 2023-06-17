@@ -26,7 +26,7 @@ class InfraStack(Stack):
         )
 
         Tags.of(role).add("component_name", component_name)
-        Tags.of(role).add("Name", "LambdaAssumeRole")
+        Tags.of(role).add("Name", "lambda-assume-role")
 
 
         #
@@ -34,14 +34,14 @@ class InfraStack(Stack):
         #
 
         backend_lambda_function = aws_lambda.Function(
-            self, "emailassistant-backend-test",
+            self, "emailassistant-backend-service",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="handlers.lambda_handler.handler",
             code=assets.backend_package,
             role=role
         )
         Tags.of(backend_lambda_function).add("component_name", component_name)
-        Tags.of(backend_lambda_function).add("Name", "BackendService")
+        Tags.of(backend_lambda_function).add("Name", "backend-service")
 
         #
         # DNS & Certificates
@@ -58,51 +58,47 @@ class InfraStack(Stack):
         # Lambda/API frontend
         #
         frontend_lambda_function = aws_lambda.Function(
-            self, "emailassistant-frontend-test",
+            self, "emailassistant-frontend-service",
             runtime=aws_lambda.Runtime.NODEJS_18_X,
             handler="lambda.handler",
             code=assets.frontend_package,
             role=role
         )
         Tags.of(frontend_lambda_function).add("component_name", component_name)
-        Tags.of(frontend_lambda_function).add("Name", "FrontEndService")
+        Tags.of(frontend_lambda_function).add("Name", "frontend_service")
 
-        api = apigateway.LambdaRestApi(self, "FronfEndAPI",
+        api = apigateway.LambdaRestApi(self, "frontend-api",
             handler=frontend_lambda_function,
             proxy=False
         )
 
-        '''
-            domain_name=apigateway.DomainNameOptions(
-                domain_name="test.%s" % DOMAIN_NAME,
-                certificate=cert
-            ),
-        '''
+        api.root.add_method("GET")
 
+        '''
         items = api.root.add_resource("items")
         items.add_method("GET") # GET /items
 
         item = items.add_resource("{method}")
         item.add_method("GET") # GET /items/{method}
+        '''
         
         Tags.of(api).add("component_name", component_name)
-        Tags.of(api).add("Name", "FrontEndAPI")
+        Tags.of(api).add("Name", "frontend_api")
 
         # Create a custom domain name for the API that will be
         # mapped to route 53 via an "A" record
-        custom_domain_name = apigateway.DomainName(self, "CustomDomainName", 
-            domain_name = "test.%s" % DOMAIN_NAME,
+        custom_domain_name = apigateway.DomainName(self, "frontend_custom_domain-name", 
+            domain_name = "prod.%s" % DOMAIN_NAME,
             certificate=cert,
             mapping=api)
         
-        record = aws_route53.ARecord(self, "AliasRecord",
+        record = aws_route53.ARecord(self, "alias_record",
             zone=hosted_zone,
             target=aws_route53.RecordTarget(
-                #alias_target=aws_route53_targets.ApiGateway(api)
                 alias_target=aws_route53_targets.ApiGatewayDomain(custom_domain_name)
             )
         )
 
         Tags.of(record).add("component_name", component_name)
-        Tags.of(record).add("Name", "FrontEndRoute53Record")
+        Tags.of(record).add("Name", "frontend_alias_record")
 
