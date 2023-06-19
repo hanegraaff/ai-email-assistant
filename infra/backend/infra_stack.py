@@ -34,7 +34,6 @@ class InfraStack(Stack):
         #
 
         bucket = aws_s3.Bucket(self, id + "_s3-bucket",
-            bucket_name= ('email-assistant-static-content_' + id),
             encryption=aws_s3.BucketEncryption.S3_MANAGED,
             website_index_document='index.html',
             website_error_document='error.html',
