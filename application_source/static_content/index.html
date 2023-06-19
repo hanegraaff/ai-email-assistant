@@ -10,10 +10,22 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       height: 100vh;
       font-family: 'Orbitron', sans-serif;
       color: white;
       background-color: black;
+    }
+
+    #banner {
+      font-size: 3em;
+      color: rgba(255, 0, 0, 0.6);
+    }
+
+    a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 10px;
     }
 
     #results {
@@ -22,29 +34,23 @@
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-
-    a {
-      color: #ffffff;
-      text-decoration: none;
-    }
   </style>
 
   <script>
-    function callAPI() {
-      fetch('https://example-api.com/data')
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById('results').innerHTML = JSON.stringify(data, null, 2);
-        })
-        .catch(error => console.error('Error:', error));
+    async function callApi() {
+      const response = await fetch('https://api.sampleapis.com/futurama/characters');
+      const data = await response.json();
+      document.getElementById('results').textContent = JSON.stringify(data, null, 2);
     }
   </script>
 </head>
 
 <body>
+  <div id="banner">beware</div>
   <div>
-    <a href="#" onClick="callAPI();return false;">Press me</a>
-    <pre id="results"></pre>
+    <a href="https://accounts.google.com/o/oauth2/v2/auth?client_id=CLIENT_ID&redirect_uri=https://localhost:80&response_type=code&scope=https://www.googleapis.com/auth/userinfo.profile&access_type=offline&prompt=consent">Google Login</a>
+    <a href="#" onclick="callApi();return false;">Website Login</a>
   </div>
+  <pre id="results"></pre>
 </body>
 </html>
