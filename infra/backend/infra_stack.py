@@ -1,7 +1,7 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_route53, Tags, aws_route53_targets, aws_certificatemanager, aws_s3_deployment 
-from aws_cdk.aws_s3 import Bucket
+from aws_cdk import aws_s3, core
 from constructs import Construct
 from pipeline import assets
 
@@ -33,14 +33,16 @@ class InfraStack(Stack):
         # S3 Website
         #
 
-        website_bucket = Bucket(self, "emailassistant-static-content",
-            website_index_document="index.html",
-            public_read_access=True
-        )
+        bucket = aws_s3.Bucket(self, id + "_s3-bucket",
+            bucket_name= ('email-assistant-static-content'),
+            website_index_document= 'index.html',
+            website_error_document= 'error.html',
+            public_read_access= True,
+            removal_policy= core.RemovalPolicy.DESTROY)
 
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
             sources=[aws_s3_deployment.Source.asset("../application_source/static_content")],
-            destination_bucket=website_bucket,
+            destination_bucket=bucket,
             destination_key_prefix="web/static"
         )    
 
