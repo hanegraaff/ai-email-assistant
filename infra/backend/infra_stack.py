@@ -40,7 +40,7 @@ class InfraStack(Stack):
             public_read_access=True,
             enforce_ssl=False,
             removal_policy= RemovalPolicy.DESTROY,
-            #block_public_access=aws_s3.BlockPublicAccess.BLOCK_ACLS,
+            block_public_access=aws_s3.BlockPublicAccess.BLOCK_ACLS,
             access_control=aws_s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL
         )
 
