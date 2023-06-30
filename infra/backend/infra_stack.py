@@ -1,7 +1,7 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_route53, Tags, aws_route53_targets, aws_certificatemanager, aws_s3_deployment 
-from aws_cdk import aws_s3, RemovalPolicy, aws_cloudfront
+from aws_cdk import aws_s3, RemovalPolicy, aws_cloudfront, aws_cloudfront_origins
 from constructs import Construct
 from pipeline import assets
 
@@ -63,8 +63,8 @@ class InfraStack(Stack):
         )
 
         aws_cloudfront.Distribution(self, "email-assistant-website",
-            default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront.origins.S3Origin(static_content_bucket)),
-            domain_names=["www.hal-9001.com", "hal-9001.com"],
+            default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront_origins.S3Origin(static_content_bucket)),
+            domain_names=["www.%s" % DOMAIN_NAME, DOMAIN_NAME],
             certificate=cert,
             default_root_object="index.html"
         )
