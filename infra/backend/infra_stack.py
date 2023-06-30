@@ -1,7 +1,7 @@
 from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_route53, Tags, aws_route53_targets, aws_certificatemanager, aws_s3_deployment 
-from aws_cdk import aws_s3, RemovalPolicy
+from aws_cdk import aws_s3, RemovalPolicy, aws_cloudfront
 from constructs import Construct
 from pipeline import assets
 
@@ -30,13 +30,26 @@ class InfraStack(Stack):
         Tags.of(role).add("Name", "lambda-assume-role")
 
         #
-        # S3 Website
+        # DNS & Certificates
+        #
+        hosted_zone = aws_route53.HostedZone.from_hosted_zone_attributes(self, "hosted_zone", zone_name=DOMAIN_NAME, hosted_zone_id=HOSTED_ZONE_ID)
+
+        cert = aws_certificatemanager.Certificate(self, 
+            "emailassistant-frontend-cert", 
+            domain_name="*.%s" % DOMAIN_NAME ,
+            validation=aws_certificatemanager.CertificateValidation.from_dns(hosted_zone=hosted_zone))
+        
+
+
+        #
+        # Public Website
+        # S3 / Cloudfront / Static Content
         #
 
-        bucket = aws_s3.Bucket(self, id + "_s3-bucket",
+        static_content_bucket = aws_s3.Bucket(self, id + "_s3-bucket",
             encryption=aws_s3.BucketEncryption.S3_MANAGED,
-            website_index_document='index.html',
-            website_error_document='error.html',
+            #website_index_document='index.html',
+            #website_error_document='error.html',
             public_read_access=True,
             enforce_ssl=False,
             removal_policy= RemovalPolicy.DESTROY,
@@ -46,8 +59,15 @@ class InfraStack(Stack):
 
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
             sources=[aws_s3_deployment.Source.asset("../application_source/static_content")],
-            destination_bucket=bucket
-        )    
+            destination_bucket=static_content_bucket
+        )
+
+        aws_cloudfront.Distribution(self, "email-assistant-website",
+            default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront.origins.S3Origin(static_content_bucket)),
+            domain_names=["www.hal-9001.com", "hal-9001.com"],
+            certificate=cert,
+            default_root_object="index.html"
+        )
 
 
         #
@@ -63,18 +83,11 @@ class InfraStack(Stack):
         )
         Tags.of(backend_lambda_function).add("component_name", component_name)
         Tags.of(backend_lambda_function).add("Name", "backend-service")
-
-        #
-        # DNS & Certificates
-        #
-        hosted_zone = aws_route53.HostedZone.from_hosted_zone_attributes(self, "hosted_zone", zone_name=DOMAIN_NAME, hosted_zone_id=HOSTED_ZONE_ID)
-
-        cert = aws_certificatemanager.Certificate(self, 
-            "emailassistant-frontend-cert", 
-            domain_name="*.%s" % DOMAIN_NAME ,
-            validation=aws_certificatemanager.CertificateValidation.from_dns(hosted_zone=hosted_zone))
         
-
+        #
+        #
+        #
+        
         #
         # Lambda/API frontend
         #
@@ -114,7 +127,7 @@ class InfraStack(Stack):
             mapping=api)
         
         # note that the domain name for the custom domain and A record must match.
-        record = aws_route53.ARecord(self, "alias_record",
+        record = aws_route53.ARecord(self, "api_alias_record",
             zone=hosted_zone,
             record_name="api-prod",
             target=aws_route53.RecordTarget(
