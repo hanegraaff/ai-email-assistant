@@ -68,6 +68,7 @@ class InfraStack(Stack):
             certificate=cert,
             default_root_object="index.html"
         )
+        
 
         static_content_record = aws_route53.ARecord(self, "static_content_alias_record",
             zone=hosted_zone,
