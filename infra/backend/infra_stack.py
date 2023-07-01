@@ -68,11 +68,11 @@ class InfraStack(Stack):
             certificate=cert,
             default_root_object="index.html"
         )
-        
+
 
         static_content_record = aws_route53.ARecord(self, "static_content_alias_record",
             zone=hosted_zone,
-            record_name="static-prod",
+            record_name="www",
             target=aws_route53.RecordTarget(
                 alias_target=aws_route53_targets.CloudFrontTarget(static_content_distribution)
             )
