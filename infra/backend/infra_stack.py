@@ -62,12 +62,23 @@ class InfraStack(Stack):
             destination_bucket=static_content_bucket
         )
 
-        aws_cloudfront.Distribution(self, "email-assistant-website",
+        static_content_distribution = aws_cloudfront.Distribution(self, "email-assistant-website",
             default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront_origins.S3Origin(static_content_bucket)),
-            domain_names=["www.%s" % DOMAIN_NAME, DOMAIN_NAME],
+            domain_names=["www.%s" % DOMAIN_NAME],
             certificate=cert,
             default_root_object="index.html"
         )
+
+        static_content_record = aws_route53.ARecord(self, "static_content_alias_record",
+            zone=hosted_zone,
+            record_name="static-prod",
+            target=aws_route53.RecordTarget(
+                alias_target=aws_route53_targets.CloudFrontTarget(static_content_distribution)
+            )
+        )
+
+        Tags.of(static_content_record).add("component_name", component_name)
+        Tags.of(static_content_record).add("Name", "frontend_alias_record")
 
 
         #
@@ -127,7 +138,7 @@ class InfraStack(Stack):
             mapping=api)
         
         # note that the domain name for the custom domain and A record must match.
-        record = aws_route53.ARecord(self, "api_alias_record",
+        api_record = aws_route53.ARecord(self, "api_alias_record",
             zone=hosted_zone,
             record_name="api-prod",
             target=aws_route53.RecordTarget(
@@ -135,6 +146,6 @@ class InfraStack(Stack):
             )
         )
 
-        Tags.of(record).add("component_name", component_name)
-        Tags.of(record).add("Name", "frontend_alias_record")
+        Tags.of(api_record).add("component_name", component_name)
+        Tags.of(api_record).add("Name", "frontend_alias_record")
 
