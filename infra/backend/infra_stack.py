@@ -48,13 +48,12 @@ class InfraStack(Stack):
 
         static_content_bucket = aws_s3.Bucket(self, id + "_s3-bucket",
             encryption=aws_s3.BucketEncryption.S3_MANAGED,
-            #website_index_document='index.html',
-            #website_error_document='error.html',
             public_read_access=True,
             enforce_ssl=False,
             removal_policy= RemovalPolicy.DESTROY,
             block_public_access=aws_s3.BlockPublicAccess.BLOCK_ACLS,
-            access_control=aws_s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL
+            access_control=aws_s3.BucketAccessControl.BUCKET_OWNER_FULL_CONTROL,
+            auto_delete_objects= True,
         )
 
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
@@ -119,17 +118,17 @@ class InfraStack(Stack):
             proxy=False
         )
 
-        items = api.root.add_resource("test-data")
-        items.add_method("GET") # GET /test-data
+        test_data = api.root.add_resource("test-data")
+        test_data.add_method("GET") # GET /test-data
 
         #api.root.add_method("GET")
 
         '''
-        items = api.root.add_resource("items")
-        items.add_method("GET") # GET /items
+        test_data = api.root.add_resource("items")
+        test_data.add_method("GET") # GET /items
 
-        item = items.add_resource("{method}")
-        item.add_method("GET") # GET /items/{method}
+        test_data = items.add_resource("{method}")
+        test_data.add_method("GET") # GET /items/{method}
         '''
         
         Tags.of(api).add("component_name", component_name)
