@@ -82,12 +82,11 @@ class InfraStack(Stack):
         Tags.of(static_content_record).add("Name", "frontend_alias_record")
 
 
-        #
-        # Lambda backend
+        # Serverless APIs
         #
 
         backend_lambda_function = aws_lambda.Function(
-            self, "emailassistant-backend-service",
+            self, "emailassistant-api-service",
             runtime=aws_lambda.Runtime.PYTHON_3_8,
             handler="handlers.lambda_handler.handler",
             code=assets.backend_package,
@@ -103,22 +102,27 @@ class InfraStack(Stack):
         #
         # Lambda/API frontend
         #
-        frontend_lambda_function = aws_lambda.Function(
-            self, "emailassistant-frontend-service",
-            runtime=aws_lambda.Runtime.NODEJS_18_X,
-            handler="lambda.handler",
-            code=assets.frontend_package,
-            role=role
-        )
-        Tags.of(frontend_lambda_function).add("component_name", component_name)
-        Tags.of(frontend_lambda_function).add("Name", "frontend_service")
+        '''
+            frontend_lambda_function = aws_lambda.Function(
+                self, "emailassistant-frontend-service",
+                runtime=aws_lambda.Runtime.NODEJS_18_X,
+                handler="lambda.handler",
+                code=assets.frontend_package,
+                role=role
+            )
+            Tags.of(frontend_lambda_function).add("component_name", component_name)
+            Tags.of(frontend_lambda_function).add("Name", "frontend_service")
+        '''
 
-        api = apigateway.LambdaRestApi(self, "frontend-api",
-            handler=frontend_lambda_function,
+        api = apigateway.LambdaRestApi(self, "backend-api",
+            handler=backend_lambda_function,
             proxy=False
         )
 
-        api.root.add_method("GET")
+        items = api.root.add_resource("test-data")
+        items.add_method("GET") # GET /test-data
+
+        #api.root.add_method("GET")
 
         '''
         items = api.root.add_resource("items")
