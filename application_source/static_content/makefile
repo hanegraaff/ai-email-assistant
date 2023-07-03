@@ -1,5 +1,7 @@
 .PHONY: install build
 
+all: install build
+
 install:
 	npm install
 
