@@ -38,6 +38,7 @@ class InfraStack(Stack):
         cert = aws_certificatemanager.Certificate(self, 
             "emailassistant-frontend-cert", 
             domain_name="*.%s" % DOMAIN_NAME ,
+            subject_alternative_names=["%s" % DOMAIN_NAME],
             validation=aws_certificatemanager.CertificateValidation.from_dns(hosted_zone=hosted_zone))
         
 
@@ -72,12 +73,20 @@ class InfraStack(Stack):
 
         static_content_distribution = aws_cloudfront.Distribution(self, "email-assistant-website",
             default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront_origins.S3Origin(static_content_bucket)),
-            domain_names=["www.%s" % DOMAIN_NAME],
+            domain_names=["www.%s" % DOMAIN_NAME, "%s" % DOMAIN_NAME],
             certificate=cert,
             default_root_object="index.html"
         )
 
 
+        static_content_record = aws_route53.ARecord(self, "www_static_content_alias_record",
+            zone=hosted_zone,
+            record_name="www",
+            target=aws_route53.RecordTarget(
+                alias_target=aws_route53_targets.CloudFrontTarget(static_content_distribution)
+            )
+        )
+        
         static_content_record = aws_route53.ARecord(self, "static_content_alias_record",
             zone=hosted_zone,
             record_name="www",
