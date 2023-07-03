@@ -16,9 +16,6 @@ class MyPipelineStack(cdk.Stack):
                                 # Build the backend code
                                 "make -C application_source/backend",
 
-                                # Build the frontend code
-                                "make -C application_source/frontend",
-
                                 # Built the frontend react app
                                 "make -C application_source/static_content",
 
