@@ -58,13 +58,6 @@ class InfraStack(Stack):
             auto_delete_objects= True,
         )
 
-        #asset = Asset(self, "ReactWebsite", path="../application_source/static_content/build")
-
-        '''aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
-            sources=[aws_s3_deployment.Source.asset("../application_source/static_content/build")],
-            destination_bucket=static_content_bucket
-        )'''
-
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
             sources=[aws_s3_deployment.Source.asset("../application_source/static_content/build")],
             destination_bucket=static_content_bucket
@@ -89,7 +82,7 @@ class InfraStack(Stack):
         
         static_content_record = aws_route53.ARecord(self, "static_content_alias_record",
             zone=hosted_zone,
-            record_name="www",
+            record_name="",
             target=aws_route53.RecordTarget(
                 alias_target=aws_route53_targets.CloudFrontTarget(static_content_distribution)
             )
@@ -115,21 +108,6 @@ class InfraStack(Stack):
         #
         #
         #
-        
-        #
-        # Lambda/API frontend
-        #
-        '''
-            frontend_lambda_function = aws_lambda.Function(
-                self, "emailassistant-frontend-service",
-                runtime=aws_lambda.Runtime.NODEJS_18_X,
-                handler="lambda.handler",
-                code=assets.frontend_package,
-                role=role
-            )
-            Tags.of(frontend_lambda_function).add("component_name", component_name)
-            Tags.of(frontend_lambda_function).add("Name", "frontend_service")
-        '''
 
         api = apigateway.LambdaRestApi(self, "backend-api",
             handler=backend_lambda_function,
