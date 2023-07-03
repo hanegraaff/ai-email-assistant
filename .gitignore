@@ -18,5 +18,6 @@ read.*.lock
 #react build artifacts
 node_modules
 package-lock.json
+build
 
 .expo
