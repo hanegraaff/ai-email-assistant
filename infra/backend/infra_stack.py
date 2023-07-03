@@ -57,7 +57,7 @@ class InfraStack(Stack):
         )
 
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
-            sources=[aws_s3_deployment.Source.asset("../application_source/static_content")],
+            sources=[aws_s3_deployment.Source.asset("../application_source/static_content/build")],
             destination_bucket=static_content_bucket
         )
 
