@@ -1,6 +1,4 @@
 from aws_cdk.aws_lambda import AssetCode
-
-from aws_cdk.aws_lambda import AssetCode
 from aws_cdk import Tags
 
 

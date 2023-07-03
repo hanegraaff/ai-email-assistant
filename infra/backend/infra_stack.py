@@ -2,6 +2,7 @@ from aws_cdk import Stack, aws_lambda, aws_iam
 from aws_cdk import aws_apigateway as apigateway
 from aws_cdk import aws_route53, Tags, aws_route53_targets, aws_certificatemanager, aws_s3_deployment 
 from aws_cdk import aws_s3, RemovalPolicy, aws_cloudfront, aws_cloudfront_origins
+from aws_cdk.aws_s3_assets import Asset
 from constructs import Construct
 from pipeline import assets
 
@@ -56,10 +57,18 @@ class InfraStack(Stack):
             auto_delete_objects= True,
         )
 
+        asset = Asset(self, "ReactWebsite", path="../application_source/static_content/build")
+
+        '''aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
+            sources=[aws_s3_deployment.Source.asset("../application_source/static_content/build")],
+            destination_bucket=static_content_bucket
+        )'''
+
         aws_s3_deployment.BucketDeployment(self, "static-content-deployment",
             sources=[aws_s3_deployment.Source.asset("../application_source/static_content/build")],
             destination_bucket=static_content_bucket
         )
+        
 
         static_content_distribution = aws_cloudfront.Distribution(self, "email-assistant-website",
             default_behavior=aws_cloudfront.BehaviorOptions(origin=aws_cloudfront_origins.S3Origin(static_content_bucket)),
