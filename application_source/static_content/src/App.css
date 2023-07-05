@@ -36,6 +36,22 @@
 
 .results {
   margin-top: 20px;
-  color: white;
+  color: rgba(140, 0, 0, 1);
   text-align: center;
 }
+
+.change-password-button {
+  width: 200px;
+  height: 40px; /* to make it a bit larger than input fields */
+  background-color: black;
+  border-color: rgba(120, 0, 0, 0.3);
+  border-width: 1px;
+  border-radius: 10px;
+  color: rgba(120, 0, 0, 1);
+  text-align: center;
+  margin-top: 10px; /* for some space around the button */
+  margin-bottom: 10px;
+  font-family: 'Futura', sans-serif;
+  cursor: pointer; /* to indicate it's clickable */
+}
+
